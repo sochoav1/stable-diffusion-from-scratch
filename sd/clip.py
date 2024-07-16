@@ -14,7 +14,35 @@ class CLIPEmbedding(nn.Module):
         #(Batch_size, seq_len) --> (Batch_size, seq_len, dim
         x = self.token_embedding(tokens)
         x += self.position_embedding
+        
+        return x
 
+
+class CLIPLayer(nn.Module):
+    
+    def __init__(self, n_head: int, n_embed: int):
+        super().__init__()
+        
+        self.layernorm1 = nn.LayerNorm(n_embed)
+        self.attention = SelfAttention(n_head, n_embed)
+        self.layernorm2 = nn.LayerNorm(n_embed)
+        self.linear1 = nn.Linear(n_embed, n_embed * 4)
+        self.linear_2 = nn.Linear(n_embed * 4, n_embed)
+        
+        
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        #Batch_size, seq_len, dim
+        residue = x
+        #SELF ATTENTION
+        x = self.layernorm1(x)
+        x = self.attention(x, causal_mask = False)
+        x += residue
+        
+        #Feed forward layer
+        residue = x
+        x = self.layernorm2(x)
+        x = self.linear1(x)
+        x = x * sigmoid
 class CLIP(nn.Module):
     def __init__(self):
         super(CLIP, self).__init__()
