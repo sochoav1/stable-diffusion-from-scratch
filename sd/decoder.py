@@ -58,3 +58,4 @@ class VAE_ResidualBlock(nn.Module):
             x = self.conv2(x)
             
             return x + self.residual_layer(residual)
+        
