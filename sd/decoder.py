@@ -1,7 +1,8 @@
-import torch 
+import torch
+from attention import selfAttention
 from torch import nn
 from torch.nn import functional as F
-from attention import selfAttention
+from attention import SelfAttention
 
 class VAE_AttentionBlock(nn.Module):
     def __init__(self, channels):
@@ -58,4 +59,74 @@ class VAE_ResidualBlock(nn.Module):
             x = self.conv2(x)
             
             return x + self.residual_layer(residual)
+        
+class VAE_Decoder(nn.Sequential):
+    
+    def __init__():
+        super().__init__(
+            nn.Conv2d(4, 4, kernel_size= 1, padding = 0),
+            
+            nn.Conv2d(4, 512, kernel_size = 3, padding = 1),
+            
+            VAE_ResidualBlock(512, 512),
+            
+            VAE_AttentionBlock(512),
+            
+            VAE_ResidualBlock(512, 512),
+            VAE_ResidualBlock(512, 512),
+            VAE_ResidualBlock(512, 512),
+            
+            #m (batch_size, 512, height/8, w/8)
+            VAE_ResidualBlock(512, 512),
+            
+            #(batch_size, 512, height/8, w/8) --> (batch_size, 512, height/4, w/4) up1
+            nn.Upsample(scale_factor = 2),
+            
+            nn.Conv2d(512, 512, kernel_size = 3, padding = 1),
+            
+            VAE_ResidualBlock(512, 512),
+            VAE_ResidualBlock(512, 512),
+            VAE_ResidualBlock(512, 512),
+            
+            #2 up
+            nn.Upsample(scale_factor = 2),
+            
+            nn.Conv2d(512, 512, kernel_size = 3, padding = 1),
+            
+            VAE_ResidualBlock(512, 256),
+            VAE_ResidualBlock(256, 256),
+            VAE_ResidualBlock(256, 256),
+            
+            #3 up
+            nn.Upsample(scale_factor = 2),
+            
+            nn.Conv2d(256 , 256, kernel_size = 3, padding = 1),
+            
+            VAE_ResidualBlock(256, 128),
+            VAE_ResidualBlock(128, 128),
+            VAE_ResidualBlock(128, 128),
+            
+            nn.GroupNorm(32, 128),
+            
+            nn.SiLU(),
+            
+            nn.Conv2(128, 3, kernel_size = 3, padding = 1),
+        )
+    def forward(self, x : torch.Tensor) -> torch.Tensor:
+        # x: (batch_size, 4, height/8, width/8)
+        
+        x/= 0.18215
+        
+        for module in self:
+            x = module(x)
+            
+        return x
+            
+            
+            
+            
+            
+            
+            
+            
         

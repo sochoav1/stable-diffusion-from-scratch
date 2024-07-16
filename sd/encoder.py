@@ -3,7 +3,6 @@ from decoder import VAE_attentionBlock, VAE_ResidualBlock
 from torch import nn
 from torch.nn import functional as F
 
-
 class VAE_encoder(nn.Sequential):
     def __init__(self):
         super().__init__(
