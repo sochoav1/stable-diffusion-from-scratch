@@ -42,7 +42,11 @@ class CLIPLayer(nn.Module):
         residue = x
         x = self.layernorm2(x)
         x = self.linear1(x)
-        x = x * sigmoid
+        x = x * torch.sigmoid(1.702 * x) #quickGelu activation
+        x = self.linear2(x)
+        x += residue
+        
+        return x 
 class CLIP(nn.Module):
     def __init__(self):
         super(CLIP, self).__init__()
