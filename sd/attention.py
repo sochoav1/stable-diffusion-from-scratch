@@ -3,7 +3,7 @@ from torch import nn
 from torch.nn import functional as F 
 import math
 
-class selfAttentiom(nn.Module):
+class SelfAttentiom(nn.Module):
     def __init_(self, num_heads: int, d_embed: int, in_proj_bias = True, out_proj_bias = True):
         super().__init__()
 
