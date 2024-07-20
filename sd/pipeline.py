@@ -8,6 +8,7 @@ HEIGHT = 512
 LATENS_WIDTH = WIDTH // 8
 LATENS_HEIGHT = HEIGHT // 8
 
+
 def generate(
     prompt,
     uncond_prompt=None,
@@ -40,7 +41,7 @@ def generate(
 
         clip = models["clip"]
         clip.to(device)
-        
+
         if do_cfg:
             # Convert into a list of length Seq_Len=77
             cond_tokens = tokenizer.batch_encode_plus(
@@ -70,90 +71,94 @@ def generate(
             # (Batch_Size, Seq_Len) -> (Batch_Size, Seq_Len, Dim)
             context = clip(tokens)
         to_idle(clip)
-        
+
         if sampler_name == "ddpm":
             sampler = DDPMSampler(generator)
             sampler.set_inference_steps(n_inference_steps)
         else:
             raise ValueError("Sampler not recognized")
-        
+
         latens_shape = (1, 4, LATENS_HEIGHT, LATENS_WIDTH)
-        
+
         if input_image:
             encoder = models["encoder"]
             encoder.to(device)
-            
+
             input_image_tensor = input_image.resize(WIDTH, HEIGHT)
             input_image_tensor = np.array(input_image_tensor)
             input_image_tensor = torch.tensor(input_image_tensor, dtype=torch.float32)
-            
+
             input_image_tensor = rescale(input_image_tensor, (0, 255), (-1, 1))
             input_image_tensor = input_image_tensor.unsqueeze(0)
             input_image_tensor = input_image_tensor.permute(0, 3, 1, 2)
-            
-            encoder_noise = torch.randn(latens_shape, generator = generator, device = device)
-            
-            #pass imagen through the VAE
+
+            encoder_noise = torch.randn(
+                latens_shape, generator=generator, device=device
+            )
+
+            # pass imagen through the VAE
             latens = encoder(input_image_tensor, encoder_noise)
-            
-            sampler.set_strength(strength = strength)
-            latents = sampler.add_noise(latents,sampler.timesteps[0])
-            
+
+            sampler.set_strength(strength=strength)
+            latents = sampler.add_noise(latents, sampler.timesteps[0])
+
             to_idle(encoder)
-        
+
         else:
-            latens = torch.randn(latens_shape, generator = generator, device = device)
-            sampler.set_strength(strength = strength)
+            latens = torch.randn(latens_shape, generator=generator, device=device)
+            sampler.set_strength(strength=strength)
             latens = sampler.add_noise(latens, sampler.timesteps[0])
-            
+
         diffusion = models["diffusion"]
         diffusion.to(device)
-        
+
         timesteps = tqdm(sampler.timesteps)
-        
+
         for i, timestep in enumerate(timesteps):
             time_embbeding = get_time_embedding(timestep).to(device)
-            
+
         model_input = latents
-        
+
         if do_cfg:
-            #batch_size, 4, latents_height, latents_width) -> 2 * batch_size, 4, latents_height, latents_width)
+            # batch_size, 4, latents_height, latents_width) -> 2 * batch_size, 4, latents_height, latents_width)
             model_input = model_input.repeat(2, 1, 1, 1)
-            
+
             model_output = diffusion(model_input, context, time_embbeding)
-            
+
         if do_cfg:
             output_cond, output_uncond = model_output.chunk(2)
-            model_output = cfg_scale *(output_cond - output_uncond) * output_uncond
-        #remove noice predicted    
+            model_output = cfg_scale * (output_cond - output_uncond) * output_uncond
+        # remove noice predicted
         latents = sampler.step(timestep, latents, model_output)
     to_idle(diffusion)
-    
+
     decoder = models["decoder"]
     decoder.to(device)
-    
+
     images = decoder(latents)
-    
+
     to_idle(decoder)
-    
-    images = rescale(images, (-1, 1), (0, 255), clamp = True)
-    
+
+    images = rescale(images, (-1, 1), (0, 255), clamp=True)
+
     images = images.permute(0, 2, 3, 1)
     images = images.to("cpu", torch.uint8).numpy()
-    return images[0] 
+    return images[0]
 
-def rescale(x, old_range, new_range, clamp = False):
+
+def rescale(x, old_range, new_range, clamp=False):
     old_min, old_range = old_range
-    new_min,new_max = new_range
+    new_min, new_max = new_range
     x -= old_min
-    x *=(new_max-new_min) / (old_range - old_min)
+    x *= (new_max - new_min) / (old_range - old_min)
     x += new_min
     if clamp:
-        x = x,clamp(new_min, new_max)
-        
+        x = x, clamp(new_min, new_max)
+
     return x
 
+
 def get_time_embedding(timestep):
-    freqs = torch.pow(10000, -torch.arange(start=0,end=100,dtype=torch.float32)/160)
-    x = torch.tensor(timestep, dtype=torch.float32)[:,None]*freqs[None]
+    freqs = torch.pow(10000, -torch.arange(start=0, end=100, dtype=torch.float32) / 160)
+    x = torch.tensor(timestep, dtype=torch.float32)[:, None] * freqs[None]
     return torch.cat([torch.cos(x), torch.sin])
