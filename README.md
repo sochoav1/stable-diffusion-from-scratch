@@ -1,5 +1,5 @@
 # Image Generation Project
-![Sample Image 1](../samples/tmp_t07zp3u.PNG)
+![Sample Image 1](./samples/tmp_t07zp3u.PNG)
 ![Sample Image 2](../samples/image2.jpeg)
 
 ## Description
