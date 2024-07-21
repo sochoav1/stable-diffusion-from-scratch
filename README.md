@@ -12,6 +12,7 @@ This project implements a text-to-image generation pipeline using pre-trained di
 │   ├── v1-5-pruned-emaonly.ckpt
 │   └── vocab.json
 ├── images
+|── samples
 │   └── dog.jpeg
 ├── sd
 │   ├── __pycache__
