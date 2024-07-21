@@ -1,14 +1,7 @@
-import os
-import sys
-
 import torch
 from attention import SelfAttention
 from torch import nn
 from torch.nn import functional as F
-
-# Use os.path.dirname(__file__) to get the directory of the current script
-current_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(current_dir)
 
 
 class CLIPEmbedding(nn.Module):
@@ -94,7 +87,6 @@ class CLIP(nn.Module):
         # (Batch_Size, Seq_Len) -> (Batch_Size, Seq_Len, Dim)
         state = self.embedding(tokens)
 
-        # Apply encoder layers similar to the Transformer's encoder.
         for layer in self.layers: 
             # (Batch_Size, Seq_Len, Dim) -> (Batch_Size, Seq_Len, Dim)
             state = layer(state)
