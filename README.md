@@ -1,3 +1,7 @@
+# Stable Diffusion From Scratch
+
+## Sample Images
+
 <table>
   <tr>
     <td align="center"><img src="./samples/tmp_t07zp3u.PNG" alt="Sample Image 1" width="400"/></td>
