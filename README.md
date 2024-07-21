@@ -1,4 +1,6 @@
-##Sample
+# Stable Diffusion From Scratch
+
+## Sample Images
 
 <table>
   <tr>
