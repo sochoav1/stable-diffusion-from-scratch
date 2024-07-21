@@ -1,6 +1,9 @@
-# Image Generation Project
-![Sample Image 1](./samples/tmp_t07zp3u.PNG)
-![Sample Image 2](./samples/tmp75tyt6fu.PNG)
+<table>
+  <tr>
+    <td align="center"><img src="./samples/tmp_t07zp3u.PNG" alt="Sample Image 1" width="400"/></td>
+    <td align="center"><img src="./samples/tmp75tyt6fu.PNG" alt="Sample Image 2" width="400"/></td>
+  </tr>
+</table>
 
 ## Description
 This project implements a text-to-image generation pipeline using pre-trained diffusion models. It allows users to generate images based on text prompts and offers flexibility in choosing different fine-tuned models.
