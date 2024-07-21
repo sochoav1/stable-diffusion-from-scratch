@@ -1,7 +1,9 @@
+##Sample
+
 <table>
   <tr>
     <td align="center"><img src="./samples/tmp_t07zp3u.PNG" alt="Sample Image 1" width="400"/></td>
-    <td align="center"><img src="./samples/tmp75tyt6fu.PNG" alt="Sample Image 2" width="400"/></td>
+    <td align="center"><img src="./samples/tmpe9xeyfre.PNG" alt="Sample Image 2" width="400"/></td>
   </tr>
 </table>
 
