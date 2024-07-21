@@ -7,7 +7,7 @@ PIP = pip
 
 .PHONY: install
 install:
-	$(PIP) install black
+	$(PIP) install black torch transformers Pillow
 
 .PHONY: format
 format:
@@ -15,3 +15,4 @@ format:
 
 .PHONY: all
 all: install format
+
